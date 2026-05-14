@@ -1,0 +1,56 @@
+%import .lexer.*
+
+start: program
+
+program: PROGRAM MAIN LBRACE declarations procedures block RBRACE
+
+declarations: declaration*
+
+declaration: VAR ID COLON type SEMICOLON
+
+type: INT
+    | FLOAT
+    | STRING
+    | BOOL
+    | CHAR
+
+
+procedures: procedure*
+
+procedure: PROCEDURE ID LBRACE block RBRACE
+
+
+block: BEGIN SEMICOLON statements END SEMICOLON
+
+
+statements: statement*
+
+statement: action SEMICOLON
+         | while_stmt
+         | for_stmt
+         | if_stmt
+
+
+action: writeln
+      | assignment
+      | increment
+      | decrement
+
+assignment: variable ASSIGN expression
+
+writeln: WRITELN LPAREN expression RPAREN
+
+increment: ID INC
+
+decrement: ID DEC
+
+
+while_stmt: WHILE LPAREN expression RPAREN DO LBRACE statements RBRACE
+
+//FOR
+
+if_stmt: IF LPAREN expression RPAREN THEN LBRACE statements RBRACE else_part?
+
+else_part: ELSE LBRACE statements RBRACE
+
+//Expresion
