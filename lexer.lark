@@ -33,6 +33,8 @@ ID: /[a-zA-Z][a-zA-Z0-9_]*/
 
 // constantes
 
+CTE: INTEGER | FLOAT_NUM | STRING_VALUE | CHAR_VALUE
+
 INTEGER: /[0-9]+/
 FLOAT_NUM: /[0-9]+\.[0-9]+/
 STRING_VALUE: /"[^"\n]*"/
@@ -63,7 +65,7 @@ NOT: "!" | "not"
 
 // asignación
 
-ASSIGN: "="
+ASSIGN: ":="
 
 //incremento y decremento
 

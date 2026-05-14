@@ -6,7 +6,9 @@ program: PROGRAM MAIN LBRACE declarations procedures block RBRACE
 
 declarations: declaration*
 
-declaration: VAR ID COLON type SEMICOLON
+declaration: VAR name (COMMA name)* COLON type SEMICOLON
+
+name: ID (LBRACKET INTEGER RBRACKET)!
 
 type: INT
     | FLOAT
@@ -25,7 +27,7 @@ block: BEGIN SEMICOLON statements END SEMICOLON
 
 statements: statement*
 
-statement: action SEMICOLON
+statement: (action SEMICOLON)
          | while_stmt
          | for_stmt
          | if_stmt
@@ -47,10 +49,27 @@ decrement: ID DEC
 
 while_stmt: WHILE LPAREN expression RPAREN DO LBRACE statements RBRACE
 
-//FOR
+for_stmt: FOR LPAREN action SEMICOLON expression SEMICOLON action RPAREN LBRACE statements RBRACE
 
 if_stmt: IF LPAREN expression RPAREN THEN LBRACE statements RBRACE else_part?
 
 else_part: ELSE LBRACE statements RBRACE
 
 //Expresion
+
+expression: boolean_expression 
+            ((AND | OR) boolean_expression)*
+
+
+boolean_expression: addition_expression 
+                    ((EQ|NE|LE|GE|LT|GT)addition_expression)!
+
+addition_expression: product_expression
+                    ((PLUS | MINUS) product_expression)*
+
+product_expression: value_expression
+                    ((TIMES | DIVIDE | MOD) value_expression)*
+
+value_expression: (PLUS | MINUS | NOT)! (variable | CTE | (LPAREN expression RPAREN))
+
+variable: ID ((LPAREN expression (COMMA expression)* RPAREN) | (LBRACKET expression (COMMA expression)* RBRACKET))
