@@ -1,9 +1,3 @@
-UPPERCASE: /[A-Z]/
-LOWERCASE: /[a-z]/
-LETTER: /[a-zA-Z]/
-DIGIT: /[0-9]/
-
-
 //palabras reservadas
 
 PROGRAM: "program"
@@ -90,6 +84,3 @@ COMMA: ","
 
 %import common.WS
 %ignore WS
-
-COMMENT: /\/\/[^\n]*/
-%ignore COMMENT

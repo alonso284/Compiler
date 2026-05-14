@@ -1,14 +1,14 @@
-%import .lexer.*
+%import .lexer (PROGRAM, MAIN, INT, VAR, COLON, SEMICOLON, PROCEDURE, BEGIN, END, WRITELN, WHILE, DO, FOR, IF, THEN, ELSE, AND, OR, EQ, NE, LE, GE, LT, GT, PLUS, MINUS, TIMES, DIVIDE, MOD, NOT, INC, DEC, LBRACE, RBRACE, LPAREN, RPAREN, LBRACKET, RBRACKET, COMMA, ASSIGN, ID, INTEGER, FLOAT, STRING, BOOL, CHAR, CTE)
 
-start: program
+start: code
 
-program: PROGRAM MAIN LBRACE declarations procedures block RBRACE
+code: PROGRAM MAIN LBRACE declarations procedures block RBRACE
 
 declarations: declaration*
 
 declaration: VAR name (COMMA name)* COLON type SEMICOLON
 
-name: ID (LBRACKET INTEGER RBRACKET)!
+name: ID (LBRACKET expression RBRACKET)?
 
 type: INT
     | FLOAT
@@ -21,9 +21,7 @@ procedures: procedure*
 
 procedure: PROCEDURE ID LBRACE block RBRACE
 
-
 block: BEGIN SEMICOLON statements END SEMICOLON
-
 
 statements: statement*
 
@@ -38,13 +36,13 @@ action: writeln
       | increment
       | decrement
 
-assignment: variable ASSIGN expression
+assignment: name ASSIGN expression
 
 writeln: WRITELN LPAREN expression RPAREN
 
-increment: ID INC
+increment: name INC
 
-decrement: ID DEC
+decrement: name DEC
 
 
 while_stmt: WHILE LPAREN expression RPAREN DO LBRACE statements RBRACE
@@ -57,19 +55,17 @@ else_part: ELSE LBRACE statements RBRACE
 
 //Expresion
 
-expression: boolean_expression 
-            ((AND | OR) boolean_expression)*
+expression: boolean_expression ((AND | OR) boolean_expression)*
 
+boolean_expression: addition_expression ((EQ|NE|LE|GE|LT|GT)addition_expression)?
 
-boolean_expression: addition_expression 
-                    ((EQ|NE|LE|GE|LT|GT)addition_expression)!
+addition_expression: product_expression ((PLUS | MINUS) product_expression)*
 
-addition_expression: product_expression
-                    ((PLUS | MINUS) product_expression)*
+product_expression: value_expression ((TIMES | DIVIDE | MOD) value_expression)*
 
-product_expression: value_expression
-                    ((TIMES | DIVIDE | MOD) value_expression)*
+value_expression: (PLUS | MINUS | NOT)? (variable | CTE | (LPAREN expression RPAREN))
 
-value_expression: (PLUS | MINUS | NOT)! (variable | CTE | (LPAREN expression RPAREN))
+variable: ID ((LPAREN expression (COMMA expression)* RPAREN) | (LBRACKET expression (COMMA expression)* RBRACKET))?
 
-variable: ID ((LPAREN expression (COMMA expression)* RPAREN) | (LBRACKET expression (COMMA expression)* RBRACKET))
+%import common.WS
+%ignore WS
