@@ -1,0 +1,93 @@
+UPPERCASE: /[A-Z]/
+LOWERCASE: /[a-z]/
+LETTER: /[a-zA-Z]/
+DIGIT: /[0-9]/
+
+
+//palabras reservadas
+
+PROGRAM: "program"
+MAIN: "main"
+VAR: "var"
+INT: "int"
+FLOAT: "float"
+STRING: "string"
+BOOL: "bool"
+CHAR: "char"
+TRUE: "true"
+FALSE: "false"
+BEGIN: "begin"
+END: "end"
+IF: "if"
+THEN: "then"
+ELSE: "else"
+WHILE: "while"
+DO: "do"
+FOR: "for"
+WRITELN: "writeln"
+PROCEDURE: "procedure"
+
+// identificadores
+
+ID: /[a-zA-Z][a-zA-Z0-9_]*/
+
+// constantes
+
+INTEGER: /[0-9]+/
+FLOAT_NUM: /[0-9]+\.[0-9]+/
+STRING_VALUE: /"[^"\n]*"/
+CHAR_VALUE: /'[^'\n]'/
+
+// operadores aritmeticos
+
+PLUS: "+"
+MINUS: "-"
+TIMES: "*"
+DIVIDE: "/"
+MOD: "%"
+
+// operadores relacionales
+
+EQ: "=="
+NE: "!="
+LE: "<="
+GE: ">="
+LT: "<"
+GT: ">"
+
+// operadores lógicos
+
+AND: "&&" | "and"
+OR: "||" | "or"
+NOT: "!" | "not"
+
+// asignación
+
+ASSIGN: "="
+
+//incremento y decremento
+
+INC: "++"
+DEC: "--"
+
+// Agrupación
+
+LPAREN: "("
+RPAREN: ")"
+
+LBRACE: "{"
+RBRACE: "}"
+
+LBRACKET: "["
+RBRACKET: "]"
+
+SEMICOLON: ";"
+COLON: ":"
+COMMA: ","
+
+
+%import common.WS
+%ignore WS
+
+COMMENT: /\/\/[^\n]*/
+%ignore COMMENT
