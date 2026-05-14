@@ -1,69 +1,98 @@
+from __future__ import annotations
+
 from dataclasses import dataclass
+from typing import Optional, Literal, TypeAlias
+
+
+TypeName: TypeAlias = Literal["string", "int", "float", "bool", "char"]
+UnaryOperator: TypeAlias = Literal["PLUS", "MINUS", "NOT"]
+BinaryOperator: TypeAlias = Literal[
+    "PLUS",
+    "MINUS",
+    "TIMES",
+    "DIVIDE",
+    "MOD",
+    "AND",
+    "OR",
+    "EQ",
+    "NE",
+    "LE",
+    "GE",
+    "LT",
+    "GT",
+]
+
+
+@dataclass
+class TypeNode:
+    name: TypeName
+
 
 @dataclass
 class ProgramNode:
-    declarations: List[Any]
-    procedures: List[Any]
-    block: Any
+    declarations: list[VarDeclNode]
+    procedures: list[ProcedureNode]
+    block: BlockNode
 
 
 @dataclass
 class VarDeclNode:
-    name: str
-    var_type: str
+    # (name, optional_length). length is only used for arrays.
+    names: list[tuple[str, Optional[int]]]
+    var_type: TypeNode
 
 
 @dataclass
 class ProcedureNode:
     name: str
-    block: Any
+    block: BlockNode
 
 
 @dataclass
 class BlockNode:
-    statements: List[Any]
+    statements: list[Statement]
 
 
 @dataclass
 class AssignmentNode:
-    variable: Any
-    expression: Any
+    variable: VariableNode
+    expression: ExpressionNode
 
 
 @dataclass
 class WritelnNode:
-    expression: Any
+    expression: ExpressionNode
 
 
 @dataclass
 class IncrementNode:
-    name: str
+    variable: VariableNode
 
 
 @dataclass
 class DecrementNode:
-    name: str
+    variable: VariableNode
 
 
 @dataclass
 class WhileNode:
-    condition: Any
-    body: List[Any]
+    condition: ExpressionNode
+    body: BlockNode
 
 
 @dataclass
 class ForNode:
-    init: Any
-    condition: Any
-    update: Any
-    body: List[Any]
+    init: ActionNode
+    condition: ExpressionNode
+    update: ActionNode
+    body: BlockNode
 
 
 @dataclass
 class IfNode:
-    condition: Any
-    then_body: List[Any]
-    else_body: Optional[List[Any]] = None
+    condition: ExpressionNode
+    then_body: BlockNode
+    else_body: Optional[BlockNode] = None
 
 
 # ==========================
@@ -71,22 +100,27 @@ class IfNode:
 # ==========================
 
 @dataclass
+class ExpressionNode:
+    value: Expr
+
+
+@dataclass
 class BinaryOpNode:
-    left: Any
-    operator: str
-    right: Any
+    left: Expr
+    operator: BinaryOperator
+    right: Expr
 
 
 @dataclass
 class UnaryOpNode:
-    operator: str
-    value: Any
+    operator: UnaryOperator
+    operand: Expr
 
 
 @dataclass
 class VariableNode:
     name: str
-    index: Optional[Any] = None
+    index: Optional[ExpressionNode] = None
 
 
 @dataclass
@@ -112,3 +146,9 @@ class CharNode:
 @dataclass
 class BoolNode:
     value: bool
+
+
+LiteralNode: TypeAlias = IntegerNode | FloatNode | StringNode | CharNode | BoolNode
+Expr: TypeAlias = BinaryOpNode | UnaryOpNode | VariableNode | LiteralNode
+ActionNode: TypeAlias = AssignmentNode | WritelnNode | IncrementNode | DecrementNode
+Statement: TypeAlias = ActionNode | WhileNode | ForNode | IfNode
