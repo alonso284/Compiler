@@ -69,14 +69,10 @@ class ASTBuilder(Transformer):
     # =====================================================
 
     def declaration(self, items):
-        var_type_token = next(
-            (
-                item for item in items
-                if self._is_token(item) and item.type in {"INT", "FLOAT", "STRING", "BOOL", "CHAR"}
-            ),
-            None,
+        var_type = next(
+            (item for item in items if isinstance(item, str) and not isinstance(item, Token)),
+            "",
         )
-        var_type = str(var_type_token) if var_type_token is not None else ""
         identifiers = [item for item in items if isinstance(item, IdentifierNode)]
 
         return [
@@ -132,7 +128,7 @@ class ASTBuilder(Transformer):
 
     def assignment(self, items):
         variable = next(item for item in items if isinstance(item, IdentifierNode))
-        expression = next(item for item in items if isinstance(item, ExpressionNode))
+        expression = next(item for item in reversed(items) if isinstance(item, ExpressionNode))
 
         return AssignmentNode(
             variable=variable,
@@ -277,8 +273,7 @@ class ASTBuilder(Transformer):
         return BoolNode(False)
 
     def BOOL(self, token):
-        value = str(token).lower() == "true"
-        return BoolNode(value)
+        return str(token)
 
     def ID(self, token):
         return str(token)

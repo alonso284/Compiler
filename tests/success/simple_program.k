@@ -8,13 +8,13 @@ program main {
             arr[i] := i * 2;
         end;
     }
-        procedure print_array_value {
+    procedure print_array_value {
         begin;
             write(arr[i]);
         end;
     }
     begin;
-        write(true or false);
+        write(!true or (!false and true));
         for(i := 0; i < 5 + 3 and i > 3 * 3 or i / 4 <= 2; i++) {
             assign_array_value();
             print_array_value();
