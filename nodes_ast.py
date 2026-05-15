@@ -1,154 +1,126 @@
-from __future__ import annotations
-
 from dataclasses import dataclass
-from typing import Optional, Literal, TypeAlias
+from typing import Optional
 
-
-TypeName: TypeAlias = Literal["string", "int", "float", "bool", "char"]
-UnaryOperator: TypeAlias = Literal["PLUS", "MINUS", "NOT"]
-BinaryOperator: TypeAlias = Literal[
-    "PLUS",
-    "MINUS",
-    "TIMES",
-    "DIVIDE",
-    "MOD",
-    "AND",
-    "OR",
-    "EQ",
-    "NE",
-    "LE",
-    "GE",
-    "LT",
-    "GT",
-]
-
-
-@dataclass
-class TypeNode:
-    name: TypeName
-
+# =========================================================
+# PROGRAM
+# =========================================================
 
 @dataclass
 class ProgramNode:
-    declarations: list[VarDeclNode]
+    variables: list[VarDeclNode]
     procedures: list[ProcedureNode]
     block: BlockNode
 
-
 @dataclass
 class VarDeclNode:
-    # (name, optional_length). length is only used for arrays.
-    names: list[tuple[str, Optional[int]]]
-    var_type: TypeNode
-
+    name: str 
+    var_type: str
+    length: Optional[ExpressionNode] = None
 
 @dataclass
 class ProcedureNode:
     name: str
     block: BlockNode
 
+# =========================================================
+# STATEMENTS
+# =========================================================
+
+@dataclass
+class StatementNode:
+    pass
 
 @dataclass
 class BlockNode:
-    statements: list[Statement]
-
+    statements: list[StatementNode]
 
 @dataclass
-class AssignmentNode:
-    variable: VariableNode
+class AssignmentNode(StatementNode):
+    variable: IdentifierNode
     expression: ExpressionNode
 
-
 @dataclass
-class WritelnNode:
+class WritelnNode(StatementNode):
     expression: ExpressionNode
 
+@dataclass
+class IncrementNode(StatementNode):
+    variable: IdentifierNode
 
 @dataclass
-class IncrementNode:
-    variable: VariableNode
-
-
-@dataclass
-class DecrementNode:
-    variable: VariableNode
-
+class DecrementNode(StatementNode):
+    variable: IdentifierNode
 
 @dataclass
-class WhileNode:
+class WhileNode(StatementNode):
     condition: ExpressionNode
     body: BlockNode
 
-
 @dataclass
-class ForNode:
-    init: ActionNode
+class ForNode(StatementNode):
+    init: StatementNode
     condition: ExpressionNode
-    update: ActionNode
+    update: StatementNode
     body: BlockNode
 
-
 @dataclass
-class IfNode:
+class IfNode(StatementNode):
     condition: ExpressionNode
     then_body: BlockNode
     else_body: Optional[BlockNode] = None
 
+@dataclass
+class ProcedureCallNode(StatementNode):
+    name: str
 
-# ==========================
+# =========================================================
 # EXPRESSIONS
-# ==========================
+# =========================================================
 
 @dataclass
 class ExpressionNode:
-    value: Expr
-
-
-@dataclass
-class BinaryOpNode:
-    left: Expr
-    operator: BinaryOperator
-    right: Expr
-
+    pass
 
 @dataclass
-class UnaryOpNode:
-    operator: UnaryOperator
-    operand: Expr
-
+class BinaryOpNode(ExpressionNode):
+    left: ExpressionNode
+    operator: str
+    right: ExpressionNode
 
 @dataclass
-class VariableNode:
+class UnaryOpNode(ExpressionNode):
+    operator: str
+    operand: ExpressionNode
+
+@dataclass
+class IdentifierNode(ExpressionNode):
     name: str
     index: Optional[ExpressionNode] = None
 
+# =========================================================
+# LITERALS
+# =========================================================
 
 @dataclass
-class IntegerNode:
+class LiteralNode(ExpressionNode):
+    value: object
+
+@dataclass
+class IntegerNode(LiteralNode):
     value: int
 
-
 @dataclass
-class FloatNode:
+class FloatNode(LiteralNode):
     value: float
 
-
 @dataclass
-class StringNode:
+class StringNode(LiteralNode):
     value: str
 
-
 @dataclass
-class CharNode:
+class CharNode(LiteralNode):
     value: str
 
-
 @dataclass
-class BoolNode:
+class BoolNode(LiteralNode):
     value: bool
-
-
-LiteralNode: TypeAlias = IntegerNode | FloatNode | StringNode | CharNode | BoolNode
-Expr: TypeAlias = BinaryOpNode | UnaryOpNode | VariableNode | LiteralNode
-ActionNode: TypeAlias = AssignmentNode | WritelnNode | IncrementNode | DecrementNode
-Statement: TypeAlias = ActionNode | WhileNode | ForNode | IfNode

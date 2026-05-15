@@ -26,6 +26,7 @@ block: BEGIN SEMICOLON statements END SEMICOLON
 statements: statement*
 
 statement: (action SEMICOLON)
+         | (procedure_call SEMICOLON)
          | while_stmt
          | for_stmt
          | if_stmt
@@ -35,6 +36,9 @@ action: writeln
       | assignment
       | increment
       | decrement
+      | procedure_call
+
+procedure_call: ID LPAREN RPAREN
 
 assignment: name ASSIGN expression
 
@@ -49,23 +53,19 @@ while_stmt: WHILE LPAREN expression RPAREN DO LBRACE statements RBRACE
 
 for_stmt: FOR LPAREN action SEMICOLON expression SEMICOLON action RPAREN LBRACE statements RBRACE
 
-if_stmt: IF LPAREN expression RPAREN THEN LBRACE statements RBRACE else_part?
-
-else_part: ELSE LBRACE statements RBRACE
+if_stmt: IF LPAREN expression RPAREN THEN LBRACE statements RBRACE (ELSE LBRACE statements RBRACE)?
 
 //Expresion
 
 expression: boolean_expression ((AND | OR) boolean_expression)*
 
-boolean_expression: addition_expression ((EQ|NE|LE|GE|LT|GT)addition_expression)?
+boolean_expression: addition_expression ((EQ|NE|LE|GE|LT|GT) addition_expression)?
 
 addition_expression: product_expression ((PLUS | MINUS) product_expression)*
 
 product_expression: value_expression ((TIMES | DIVIDE | MOD) value_expression)*
 
-value_expression: (PLUS | MINUS | NOT)? (variable | CTE | (LPAREN expression RPAREN))
-
-variable: ID ((LPAREN expression (COMMA expression)* RPAREN) | (LBRACKET expression (COMMA expression)* RBRACKET))?
+value_expression: (PLUS | MINUS | NOT)? (name  | CTE | (LPAREN expression RPAREN))
 
 %import common.WS
 %ignore WS
