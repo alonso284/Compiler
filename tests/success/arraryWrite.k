@@ -1,6 +1,6 @@
 program main {
     var array[5]: int;
     begin;
-        writeln(array[0]);
+        write(array[0]);
     end;
 }

@@ -18,7 +18,7 @@ ELSE: "else"
 WHILE: "while"
 DO: "do"
 FOR: "for"
-WRITELN: "writeln"
+WRITE: "write"
 PROCEDURE: "procedure"
 
 // identificadores

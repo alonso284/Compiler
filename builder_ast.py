@@ -8,7 +8,7 @@ from nodes_ast import *
 class ASTBuilder(Transformer):
 
     _NOISE_TOKENS = {
-        "PROGRAM", "MAIN", "VAR", "PROCEDURE", "BEGIN", "END", "WHILE", "DO", "FOR", "IF", "THEN", "ELSE", "WRITELN",
+        "PROGRAM", "MAIN", "VAR", "PROCEDURE", "BEGIN", "END", "WHILE", "DO", "FOR", "IF", "THEN", "ELSE", "WRITE",
         "LBRACE", "RBRACE", "LPAREN", "RPAREN", "LBRACKET", "RBRACKET", "COLON", "SEMICOLON", "COMMA",
     }
 
@@ -139,10 +139,10 @@ class ASTBuilder(Transformer):
             expression=expression,
         )
 
-    def writeln(self, items):
+    def write(self, items):
         expression = next(item for item in items if isinstance(item, ExpressionNode))
 
-        return WritelnNode(
+        return WriteNode(
             expression=expression,
         )
 

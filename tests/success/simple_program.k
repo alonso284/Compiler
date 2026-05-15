@@ -10,27 +10,27 @@ program main {
     }
         procedure print_array_value {
         begin;
-            writeln(arr[i]);
+            write(arr[i]);
         end;
     }
     begin;
-        writeln(true or false);
+        write(true or false);
         for(i := 0; i < 5 + 3 and i > 3 * 3 or i / 4 <= 2; i++) {
             assign_array_value();
             print_array_value();
         }
         while (i > 0) do {
-            writeln(arr[i]);
+            write(arr[i]);
             i := i - 1;
         }
         if (i == 0) then {
-            writeln("Done!");
+            write("Done!");
         } else {
             if (i < 0) then {
-                writeln("Error: i is negative");
+                write("Error: i is negative");
             }
             if (i > 0) then {
-                writeln("Error: i is positive");
+                write("Error: i is positive");
             }
         }
     end;

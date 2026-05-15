@@ -3,7 +3,7 @@ program main {
     begin;
         i := 0;
         while(i < 5) do {
-            writeln(array[i]);
+            write(array[i]);
             i++;
         }
     end;
