@@ -1,9 +1,9 @@
 program main {
-    var i, a, b, c, is[5]: int;
-    var f, x, y, z, fs[5]: float;
-    var s, ss[5]: string;
-    var b, bs[5]: bool;
-    var c, cs[5]: char;
+    var i, a, b, c: int;
+    var f, x, y, z: float;
+    var s: string;
+    var b: bool;
+    var c: char;
 
     begin;
         i := (5 * 3 + 3 + 3 + 3 * 34 * 34) / 5 - 4 + a * ((b - c / 2) % 7);

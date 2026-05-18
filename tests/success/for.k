@@ -1,8 +1,8 @@
 program main {
-    var i, array[5]: int;
+    var i, a: int;
     begin;
         for(i := 0; i < 5; i++) {
-            write(array[i]);
+            write(a);
         }
     end;
 }

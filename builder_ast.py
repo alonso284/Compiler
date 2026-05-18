@@ -78,8 +78,7 @@ class ASTBuilder(Transformer):
         return [
             VarDeclNode(
                 name=identifier.name,
-                var_type=var_type,
-                length=identifier.index,
+                var_type=var_type
             )
             for identifier in identifiers
         ]
@@ -89,8 +88,7 @@ class ASTBuilder(Transformer):
 
     def name(self, items):
         identifier = str(items[0])
-        index_expr = next((item for item in items if isinstance(item, ExpressionNode)), None)
-        return IdentifierNode(name=identifier, index=index_expr)
+        return IdentifierNode(name=identifier)
 
     # =====================================================
     # PROCEDURES
@@ -276,7 +274,7 @@ class ASTBuilder(Transformer):
         return str(token)
 
     def ID(self, token):
-        return str(token)
+        return IdentifierNode(name=str(token))
 
 # only run if programm is main
 if __name__ == "__main__":

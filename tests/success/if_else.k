@@ -1,5 +1,5 @@
 program main {
-    var i, array[5]: int;
+    var i, a: int;
     begin;
         if(i < 5) then {
             write(true);

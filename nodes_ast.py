@@ -15,7 +15,6 @@ class ProgramNode:
 class VarDeclNode:
     name: str 
     var_type: str
-    length: Optional[ExpressionNode] = None
 
 @dataclass
 class ProcedureNode:
@@ -95,7 +94,6 @@ class UnaryOpNode(ExpressionNode):
 @dataclass
 class IdentifierNode(ExpressionNode):
     name: str
-    index: Optional[ExpressionNode] = None
 
 # =========================================================
 # LITERALS

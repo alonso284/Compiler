@@ -74,9 +74,6 @@ RPAREN: ")"
 LBRACE: "{"
 RBRACE: "}"
 
-LBRACKET: "["
-RBRACKET: "]"
-
 SEMICOLON: ";"
 COLON: ":"
 COMMA: ","

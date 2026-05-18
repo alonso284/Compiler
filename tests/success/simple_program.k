@@ -1,16 +1,16 @@
 program main { 
-    var arr[5], i, a, b, c: int;
+    var arr, i, a, b, c: int;
     var x, y: float;
     var ch: char;
     var flag: bool;
     procedure assign_array_value {
         begin;
-            arr[i] := i * 2;
+            arr := i * 2;
         end;
     }
     procedure print_array_value {
         begin;
-            write(arr[i]);
+            write(arr);
         end;
     }
     begin;
@@ -20,7 +20,7 @@ program main {
             print_array_value();
         }
         while (i > 0) do {
-            write(arr[i]);
+            write(arr);
             i := i - 1;
         }
         if (i == 0) then {
