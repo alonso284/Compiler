@@ -1,4 +1,4 @@
-from lark import Transformer, Tree
+from lark import Token, Transformer
 from nodes_ast import *
 
 # =========================================================
@@ -7,70 +7,102 @@ from nodes_ast import *
 
 class ASTBuilder(Transformer):
 
+    _NOISE_TOKENS = {
+        "PROGRAM", "MAIN", "VAR", "PROCEDURE", "BEGIN", "END", "WHILE", "DO", "FOR", "IF", "THEN", "ELSE", "WRITE",
+        "LBRACE", "RBRACE", "LPAREN", "RPAREN", "LBRACKET", "RBRACKET", "COLON", "SEMICOLON", "COMMA",
+    }
+
+    _UNARY_OP_TOKENS = {"PLUS", "MINUS", "NOT"}
+
+    @staticmethod
+    def _is_token(value, token_type=None):
+        if not isinstance(value, Token):
+            return False
+        return token_type is None or value.type == token_type
+
+    @staticmethod
+    def _fold_left(items):
+        node = items[0]
+        for i in range(1, len(items), 2):
+            node = BinaryOpNode(
+                left=node,
+                operator=str(items[i]),
+                right=items[i + 1],
+            )
+        return node
+
     # =====================================================
     # PROGRAM
     # =====================================================
 
+    def start(self, items):
+        return items[0]
+
     def code(self, items):
+        declarations = []
+        procedures = []
+
+        for item in items:
+            if not isinstance(item, list):
+                continue
+            if item and isinstance(item[0], VarDeclNode):
+                declarations = item
+            elif item and isinstance(item[0], ProcedureNode):
+                procedures = item
+
+        block = next(item for item in items if isinstance(item, BlockNode))
+
         return ProgramNode(
-            variables=self.declarations(items.children[0].children[3]),
-            procedures=self.procedures(items.children[0].children[4]),
-            block=self.block(items.children[0].children[5])
+            variables=declarations,
+            procedures=procedures,
+            block=block,
         )
 
     def declarations(self, items):
-        declarations = [
-            self.declaration(item)
-            for item in items.children # declaration line
-        ]
-        # return flatten list of declarations
-        return [decl for sublist in declarations for decl in sublist]
+        return [decl for group in items for decl in group]
 
     def procedures(self, items):
-        return [
-            self.procedure(item)
-            for item in items.children # procedure line
-        ]
+        return items
 
     # =====================================================
     # DECLARATIONS
     # =====================================================
 
     def declaration(self, items):
-        var_type = items.children[-2].children[0].value
-        
+        var_type = next(
+            (item for item in items if isinstance(item, str) and not isinstance(item, Token)),
+            "",
+        )
+        identifiers = [item for item in items if isinstance(item, IdentifierNode)]
+
         return [
             VarDeclNode(
-                name=child.children[0].value,
+                name=identifier.name,
                 var_type=var_type,
-                length=len(child.children) > 2 and self.expression(child.children[2]) or None
+                length=identifier.index,
             )
-            for child in items.children
-            if isinstance(child, Tree) and child.data.value == "name"
+            for identifier in identifiers
         ]
 
     def type(self, items):
         return str(items[0])
 
     def name(self, items):
-        identifier = str(items.children[0])
-
-        if len(items.children) > 1:
-            return IdentifierNode(
-                name=identifier,
-                index=self.expression(items.children[2])
-            )
-
-        return IdentifierNode(identifier)
+        identifier = str(items[0])
+        index_expr = next((item for item in items if isinstance(item, ExpressionNode)), None)
+        return IdentifierNode(name=identifier, index=index_expr)
 
     # =====================================================
     # PROCEDURES
     # =====================================================
 
     def procedure(self, items):
+        name = next(item for item in items if isinstance(item, str))
+        block = next(item for item in items if isinstance(item, BlockNode))
+
         return ProcedureNode(
-            name=str(items.children[1]),
-            block=self.block(items.children[3])
+            name=name,
+            block=block,
         )
 
     # =====================================================
@@ -78,55 +110,50 @@ class ASTBuilder(Transformer):
     # =====================================================
 
     def block(self, items):
-        return BlockNode(
-            statements=self.statements(items.children[2])
-        )
+        statements = next((item for item in items if isinstance(item, list)), [])
+        return BlockNode(statements=statements)
 
     def statements(self, items):
-        return [
-            self.statement(item)
-            for item in items.children
-        ]
+        return items
 
     def statement(self, items):
-        return \
-            self.action(items.children[0].children[0]) if items.children[0].data == "action" else \
-            self.procedure_call(items.children[0]) if items.children[0].data == "procedure_call" else \
-            self.while_stmt(items.children[0]) if items.children[0].data == "while_stmt" else \
-            self.for_stmt(items.children[0]) if items.children[0].data == "for_stmt" else \
-            self.if_stmt(items.children[0]) if items.children[0].data == "if_stmt" else \
-            StatementNode() # default case
+        return next((item for item in items if isinstance(item, StatementNode)), StatementNode())
             
     # =====================================================
     # ACTIONS
     # =====================================================
 
     def action(self, items):
-        return self.assignment(items) if items.data == "assignment" else \
-               self.writeln(items) if items.data == "writeln" else \
-               self.increment(items) if items.data == "increment" else \
-               self.decrement(items) if items.data == "decrement" else \
-               StatementNode() # default case
+        return next((item for item in items if isinstance(item, StatementNode)), StatementNode())
 
     def assignment(self, items):
+        variable = next(item for item in items if isinstance(item, IdentifierNode))
+        expression = next(item for item in reversed(items) if isinstance(item, ExpressionNode))
+
         return AssignmentNode(
-            variable=self.name(items.children[0]),
-            expression=self.expression(items.children[2])
+            variable=variable,
+            expression=expression,
         )
 
-    def writeln(self, items):
-        return WritelnNode(
-            expression=self.expression(items.children[2])
+    def write(self, items):
+        expression = next(item for item in items if isinstance(item, ExpressionNode))
+
+        return WriteNode(
+            expression=expression,
         )
 
     def increment(self, items):
+        variable = next(item for item in items if isinstance(item, IdentifierNode))
+
         return IncrementNode(
-            variable=self.name(items.children[0])
+            variable=variable,
         )
 
     def decrement(self, items):
+        variable = next(item for item in items if isinstance(item, IdentifierNode))
+
         return DecrementNode(
-            variable=self.name(items.children[0])
+            variable=variable,
         )
 
     # =====================================================
@@ -134,24 +161,34 @@ class ASTBuilder(Transformer):
     # =====================================================
 
     def while_stmt(self, items):
+        condition = next(item for item in items if isinstance(item, ExpressionNode))
+        body_statements = next((item for item in items if isinstance(item, list)), [])
+
         return WhileNode(
-            condition=self.expression(items.children[2]),
-            body=BlockNode(items.children[6])
+            condition=condition,
+            body=BlockNode(body_statements),
         )
 
     def for_stmt(self, items):
+        actions = [item for item in items if isinstance(item, StatementNode)]
+        condition = next(item for item in items if isinstance(item, ExpressionNode))
+        body_statements = next((item for item in items if isinstance(item, list)), [])
+
         return ForNode(
-            init=self.action(items.children[2].children[0]),
-            condition=self.expression(items.children[4]),
-            update=self.action(items.children[6].children[0]),
-            body=self.statements(items.children[9])
+            init=actions[0],
+            condition=condition,
+            update=actions[1],
+            body=BlockNode(body_statements),
         )
 
     def if_stmt(self, items):
+        condition = next(item for item in items if isinstance(item, ExpressionNode))
+        blocks = [item for item in items if isinstance(item, list)]
+
         return IfNode(
-            condition=self.expression(items.children[2]),
-            then_body=self.statements(items.children[6]),
-            else_body=self.statements(items.children[10]) if len(items.children) > 8 else None
+            condition=condition,
+            then_body=BlockNode(blocks[0]) if blocks else BlockNode([]),
+            else_body=BlockNode(blocks[1]) if len(blocks) > 1 else None,
         )
 
     # =====================================================
@@ -159,8 +196,10 @@ class ASTBuilder(Transformer):
     # =====================================================
 
     def procedure_call(self, items):
+        name = next(item for item in items if isinstance(item, str))
+
         return ProcedureCallNode(
-            name=items.children[0],
+            name=name,
         )
 
     # =====================================================
@@ -168,74 +207,73 @@ class ASTBuilder(Transformer):
     # =====================================================
 
     def expression(self, items):
-        return self.global_expression(items.children)
-
-    def global_expression(self, items):
-        return \
-            self.boolean_expression(items[0].children) if len(items) == 1 else \
-            BinaryOpNode(
-                left=self.boolean_expression(items[0].children),
-                operator=items[1],
-                right=self.global_expression(items[2:])
-            )
+        return self._fold_left(items) if len(items) > 1 else items[0]
 
     def boolean_expression(self, items):
-        return \
-            self.addition_expression(items[0].children) if len(items) == 1 else \
-            BinaryOpNode(
-                left=self.addition_expression(items[0].children),
-                operator=items[1],
-                right=self.addition_expression(items[2].children)
-            )
+        return self._fold_left(items) if len(items) > 1 else items[0]
 
     def addition_expression(self, items):
-        return \
-            self.product_expression(items[0].children) if len(items) == 1 else \
-            BinaryOpNode(
-                left=self.product_expression(items[0].children),
-                operator=items[1],
-                right=self.addition_expression(items[2:])
-            )
+        return self._fold_left(items) if len(items) > 1 else items[0]
 
     def product_expression(self, items):
-        return \
-            self.value_expression(items[0].children) if len(items) == 1 else \
-            BinaryOpNode(
-                left=self.value_expression(items[0].children),
-                operator=items[1],
-                right=self.product_expression(items[2:])
-            )
+        return self._fold_left(items) if len(items) > 1 else items[0]
 
     def value_expression(self, items):
-        if len(items) == 1:
-            return items[0]
-        operator = str(items[0])
-        operand = items[1]
+        filtered = [
+            item for item in items
+            if not (self._is_token(item) and item.type in self._NOISE_TOKENS)
+        ]
 
-        return UnaryOpNode(
-            operator=operator,
-            operand=operand
-        )
+        if len(filtered) == 1:
+            return filtered[0]
+
+        if self._is_token(filtered[0]) and filtered[0].type in self._UNARY_OP_TOKENS:
+            return UnaryOpNode(
+                operator=str(filtered[0]),
+                operand=filtered[1],
+            )
+
+        return filtered[0]
 
     # =====================================================
     # LITERALS
     # =====================================================
 
+    def CTE(self, token):
+        text = str(token)
+
+        if text.lower() in {"true", "false"}:
+            return BoolNode(text.lower() == "true")
+        if text.startswith('"') and text.endswith('"'):
+            return StringNode(text[1:-1])
+        if text.startswith("'") and text.endswith("'"):
+            return CharNode(text[1:-1])
+        if "." in text:
+            return FloatNode(float(text))
+        return IntegerNode(int(text))
+
     def INTEGER(self, token):
         return IntegerNode(int(token))
 
-    def FLOAT(self, token):
+    def FLOAT_NUM(self, token):
         return FloatNode(float(token))
 
-    def STRING(self, token):
-        return StringNode(str(token))
+    def STRING_VALUE(self, token):
+        text = str(token)
+        return StringNode(text[1:-1])
 
-    def CHAR(self, token):
-        return CharNode(str(token))
+    def CHAR_VALUE(self, token):
+        text = str(token)
+        return CharNode(text[1:-1])
+
+    def TRUE(self, token):
+        return BoolNode(True)
+
+    def FALSE(self, token):
+        return BoolNode(False)
 
     def BOOL(self, token):
-        value = str(token).lower() == "true"
-        return BoolNode(value)
+        return str(token)
 
     def ID(self, token):
         return str(token)
@@ -251,8 +289,8 @@ if __name__ == "__main__":
         code = file.read()
 
     tree = parser.parse(code)
-    ast = ASTBuilder().code(tree)
+    ast = ASTBuilder().transform(tree)
 
-    # print(ast.variables)
-    # print(ast.procedures[0].block)
+    print(ast.variables)
+    print(ast.procedures)
     print(ast.block)

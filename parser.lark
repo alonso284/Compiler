@@ -1,4 +1,4 @@
-%import .lexer (PROGRAM, MAIN, INT, VAR, COLON, SEMICOLON, PROCEDURE, BEGIN, END, WRITELN, WHILE, DO, FOR, IF, THEN, ELSE, AND, OR, EQ, NE, LE, GE, LT, GT, PLUS, MINUS, TIMES, DIVIDE, MOD, NOT, INC, DEC, LBRACE, RBRACE, LPAREN, RPAREN, LBRACKET, RBRACKET, COMMA, ASSIGN, ID, INTEGER, FLOAT, STRING, BOOL, CHAR, CTE)
+%import .lexer (PROGRAM, MAIN, INT, VAR, COLON, SEMICOLON, PROCEDURE, BEGIN, END, WRITE, WHILE, DO, FOR, IF, THEN, ELSE, AND, OR, EQ, NE, LE, GE, LT, GT, PLUS, MINUS, TIMES, DIVIDE, MOD, NOT, INC, DEC, LBRACE, RBRACE, LPAREN, RPAREN, LBRACKET, RBRACKET, COMMA, ASSIGN, ID, INTEGER, FLOAT, STRING, BOOL, CHAR, CTE)
 
 start: code
 
@@ -16,7 +16,6 @@ type: INT
     | BOOL
     | CHAR
 
-
 procedures: procedure*
 
 procedure: PROCEDURE ID LBRACE block RBRACE
@@ -31,8 +30,7 @@ statement: (action SEMICOLON)
          | for_stmt
          | if_stmt
 
-
-action: writeln
+action: write
       | assignment
       | increment
       | decrement
@@ -42,12 +40,11 @@ procedure_call: ID LPAREN RPAREN
 
 assignment: name ASSIGN expression
 
-writeln: WRITELN LPAREN expression RPAREN
+write: WRITE LPAREN expression RPAREN
 
 increment: name INC
 
 decrement: name DEC
-
 
 while_stmt: WHILE LPAREN expression RPAREN DO LBRACE statements RBRACE
 

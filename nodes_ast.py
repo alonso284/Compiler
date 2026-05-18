@@ -40,7 +40,7 @@ class AssignmentNode(StatementNode):
     expression: ExpressionNode
 
 @dataclass
-class WritelnNode(StatementNode):
+class WriteNode(StatementNode):
     expression: ExpressionNode
 
 @dataclass

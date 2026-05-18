@@ -1,5 +1,5 @@
 program main {
     begin;
-        writeln(5);
+        write(5);
     end;
 }

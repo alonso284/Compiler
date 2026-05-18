@@ -2,9 +2,9 @@ program main {
     var i, array[5]: int;
     begin;
         if(i < 5) then {
-            writeln(true);
+            write(true);
         } else {
-            writeln(false);
+            write(false);
         }
     end;
 }

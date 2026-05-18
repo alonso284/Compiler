@@ -18,7 +18,7 @@ ELSE: "else"
 WHILE: "while"
 DO: "do"
 FOR: "for"
-WRITELN: "writeln"
+WRITE: "write"
 PROCEDURE: "procedure"
 
 // identificadores
@@ -27,7 +27,7 @@ ID: /[a-zA-Z][a-zA-Z0-9_]*/
 
 // constantes
 
-CTE: INTEGER | FLOAT_NUM | STRING_VALUE | CHAR_VALUE
+CTE: INTEGER | FLOAT_NUM | STRING_VALUE | CHAR_VALUE | TRUE | FALSE
 
 INTEGER: /[0-9]+/
 FLOAT_NUM: /[0-9]+\.[0-9]+/

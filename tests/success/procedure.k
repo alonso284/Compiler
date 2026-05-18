@@ -6,7 +6,7 @@ program main {
     }
     procedure action {
         begin;
-            writeln("HERE");
+            write("HERE");
         end;
     }
     begin;
