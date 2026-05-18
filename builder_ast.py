@@ -95,7 +95,7 @@ class ASTBuilder(Transformer):
     # =====================================================
 
     def procedure(self, items):
-        name = next(item for item in items if isinstance(item, str))
+        name = next(item.name for item in items if isinstance(item, IdentifierNode))
         block = next(item for item in items if isinstance(item, BlockNode))
 
         return ProcedureNode(
@@ -194,7 +194,7 @@ class ASTBuilder(Transformer):
     # =====================================================
 
     def procedure_call(self, items):
-        name = next(item for item in items if isinstance(item, str))
+        name = next(item.name for item in items if isinstance(item, IdentifierNode))
 
         return ProcedureCallNode(
             name=name,

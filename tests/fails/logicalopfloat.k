@@ -7,7 +7,7 @@ program main{
         i := true;
 
         if (x and i) then {
-            writeln(x);
+            write(x);
         }
     end;
 }

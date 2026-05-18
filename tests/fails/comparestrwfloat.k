@@ -7,7 +7,7 @@ program main{
         i := "hello";
 
         if (x == i) then {
-            writeln(x);
+            write(x);
         }
     end;
 }
