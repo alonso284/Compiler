@@ -1,0 +1,48 @@
+{
+    "chat.tools.terminal.autoApprove": {
+        "/^source \\.venv/bin/activate && python - <<'PY'\nfrom pathlib import Path\nfrom lark import Lark\nfrom builder_ast import ASTBuilder\nfrom semantic_analyzer import SemanticAnalyzer, SemanticError\n\nparser = Lark\\.open\\('parser\\.lark', parser='lalr'\\)\nbase = Path\\('tests'\\)\nresults = \\[\\]\nfor group in \\('success', 'fails'\\):\n    for path in sorted\\(\\(base / group\\)\\.glob\\('\\*\\.k'\\)\\):\n        code = path\\.read_text\\(\\)\n        try:\n            ast = ASTBuilder\\(\\)\\.transform\\(parser\\.parse\\(code\\)\\)\n            SemanticAnalyzer\\(\\)\\.analyze\\(ast\\)\n            ok = True\n            err = ''\n        except Exception as exc:\n            ok = False\n            err = f'\\{type\\(exc\\)\\.__name__\\}: \\{exc\\}'\n        results\\.append\\(\\(group, path\\.name, ok, err\\)\\)\n\nfor group, name, ok, err in results:\n    expected = group == 'success'\n    status = 'PASS' if ok == expected else 'FAIL'\n    print\\(f'\\{status\\} \\{group\\}/\\{name\\}'\\)\n    if status == 'FAIL':\n        print\\(err\\)\nPY$/": {
+            "approve": true,
+            "matchCommandLine": true
+        },
+        "/^source \\.venv/bin/activate && python - <<'PY'\nfrom lark import Lark\nfrom builder_ast import ASTBuilder\nfrom pathlib import Path\n\nparser = Lark\\.open\\('parser\\.lark', parser='lalr'\\)\nfor name in \\['tests/fails/notdeclaredvar\\.k', 'tests/fails/whilenotbool\\.k', 'tests/success/expressions\\.k'\\]:\n    code = Path\\(name\\)\\.read_text\\(\\)\n    ast = ASTBuilder\\(\\)\\.transform\\(parser\\.parse\\(code\\)\\)\n    print\\(name\\)\n    print\\(ast\\)\n    print\\('block statements types:', \\[type\\(s\\)\\.__name__ for s in ast\\.block\\.statements\\]\\)\n    print\\('variables:', ast\\.variables\\)\n    print\\(\\)\nPY$/": {
+            "approve": true,
+            "matchCommandLine": true
+        },
+        "/^source \\.venv/bin/activate && python - <<'PY'\nfrom lark import Lark\nfrom builder_ast import ASTBuilder\nfrom semantic_analyzer import SemanticAnalyzer\nfrom pathlib import Path\n\nparser = Lark\\.open\\('parser\\.lark', parser='lalr'\\)\ncode = Path\\('tests/fails/notdeclaredvar\\.k'\\)\\.read_text\\(\\)\nast = ASTBuilder\\(\\)\\.transform\\(parser\\.parse\\(code\\)\\)\nprint\\(ast\\)\nSemanticAnalyzer\\(\\)\\.analyze\\(ast\\)\nprint\\('accepted'\\)\nPY$/": {
+            "approve": true,
+            "matchCommandLine": true
+        },
+        "/^source \\.venv/bin/activate && python - <<'PY'\nimport inspect\nimport semantic_analyzer\nprint\\(inspect\\.getsource\\(semantic_analyzer\\.SemanticAnalyzer\\.analyze\\)\\)\nprint\\(inspect\\.getsource\\(semantic_analyzer\\.SemanticAnalyzer\\._analyze_statement\\)\\)\nPY$/": {
+            "approve": true,
+            "matchCommandLine": true
+        },
+        "/^source \\.venv/bin/activate && python - <<'PY'\nfrom pathlib import Path\nfrom lark import Lark\nfrom builder_ast import ASTBuilder\nfrom semantic_analyzer import SemanticAnalyzer\n\nparser = Lark\\.open\\('parser\\.lark', parser='lalr'\\)\nbase = Path\\('tests'\\)\nresults = \\[\\]\nfor group in \\('success', 'fails'\\):\n    for path in sorted\\(\\(base / group\\)\\.glob\\('\\*\\.k'\\)\\):\n        code = path\\.read_text\\(\\)\n        try:\n            ast = ASTBuilder\\(\\)\\.transform\\(parser\\.parse\\(code\\)\\)\n            SemanticAnalyzer\\(\\)\\.analyze\\(ast\\)\n            ok = True\n            err = ''\n        except Exception as exc:\n            ok = False\n            err = f'\\{type\\(exc\\)\\.__name__\\}: \\{exc\\}'\n        expected = group == 'success'\n        status = 'PASS' if ok == expected else 'FAIL'\n        results\\.append\\(\\(status, group, path\\.name, err\\)\\)\n\nfor status, group, name, err in results:\n    print\\(f'\\{status\\} \\{group\\}/\\{name\\}'\\)\n    if status == 'FAIL':\n        print\\(err\\)\nPY$/": {
+            "approve": true,
+            "matchCommandLine": true
+        },
+        "/^source \\.venv/bin/activate && python - <<'PY'\nfrom pathlib import Path\nfrom lark import Lark\nfrom builder_ast import ASTBuilder\nfrom semantic_analyzer import SemanticAnalyzer, SemanticError\n\nparser = Lark\\.open\\('parser\\.lark', parser='lalr'\\)\nfor name in \\['tests/fails/floattoint\\.k', 'tests/fails/inttofloat\\.k', 'tests/success/variableAssigment\\.k'\\]:\n    code = Path\\(name\\)\\.read_text\\(\\)\n    try:\n        ast = ASTBuilder\\(\\)\\.transform\\(parser\\.parse\\(code\\)\\)\n        SemanticAnalyzer\\(\\)\\.analyze\\(ast\\)\n        print\\(f'PASS \\{name\\}'\\)\n    except Exception as exc:\n        print\\(f'FAIL \\{name\\}: \\{type\\(exc\\)\\.__name__\\}: \\{exc\\}'\\)\nPY$/": {
+            "approve": true,
+            "matchCommandLine": true
+        },
+        "/^source \\.venv/bin/activate && python - <<'PY'\nfrom pathlib import Path\nfrom lark import Lark\nfrom builder_ast import ASTBuilder\nfrom semantic_analyzer import SemanticAnalyzer\n\nparser = Lark\\.open\\('parser\\.lark', parser='lalr'\\)\nfor name in \\['tests/fails/floattoint\\.k', 'tests/fails/inttofloat\\.k'\\]:\n    code = Path\\(name\\)\\.read_text\\(\\)\n    try:\n        ast = ASTBuilder\\(\\)\\.transform\\(parser\\.parse\\(code\\)\\)\n        SemanticAnalyzer\\(\\)\\.analyze\\(ast\\)\n        print\\(f'UNEXPECTED PASS \\{name\\}'\\)\n    except Exception as exc:\n        print\\(f'EXPECTED FAIL \\{name\\}: \\{type\\(exc\\)\\.__name__\\}: \\{exc\\}'\\)\nPY$/": {
+            "approve": true,
+            "matchCommandLine": true
+        },
+        "/^source \\.venv/bin/activate && python - <<'PY'\nfrom pathlib import Path\nfrom lark import Lark\nfrom builder_ast import ASTBuilder\nfrom semantic_analyzer import SemanticAnalyzer\n\npath = Path\\('tests/success/semantic_cube\\.k'\\)\nparser = Lark\\.open\\('parser\\.lark', parser='lalr'\\)\ncode = path\\.read_text\\(\\)\nast = ASTBuilder\\(\\)\\.transform\\(parser\\.parse\\(code\\)\\)\nSemanticAnalyzer\\(\\)\\.analyze\\(ast\\)\nprint\\('PASS tests/success/semantic_cube\\.k'\\)\nPY$/": {
+            "approve": true,
+            "matchCommandLine": true
+        },
+        "/^source \\.venv/bin/activate && python - <<'PY'\nfrom pathlib import Path\nfrom lark import Lark\nfrom builder_ast import ASTBuilder\nfrom semantic_analyzer import SemanticAnalyzer\n\nparser = Lark\\.open\\('parser\\.lark', parser='lalr'\\)\nfor name in \\['tests/success/semantic_cube_arithmetic\\.k', 'tests/success/semantic_cube_relations\\.k'\\]:\n    code = Path\\(name\\)\\.read_text\\(\\)\n    ast = ASTBuilder\\(\\)\\.transform\\(parser\\.parse\\(code\\)\\)\n    SemanticAnalyzer\\(\\)\\.analyze\\(ast\\)\n    print\\(f'PASS \\{name\\}'\\)\nPY$/": {
+            "approve": true,
+            "matchCommandLine": true
+        },
+        "/^source \\.venv/bin/activate && python - <<'PY'\nfrom pathlib import Path\nfrom lark import Lark\nfrom builder_ast import ASTBuilder\nfrom semantic_analyzer import SemanticAnalyzer\n\nparser = Lark\\.open\\('parser\\.lark', parser='lalr'\\)\nfor name in \\['tests/success/semantic_cube_numeric_ops\\.k', 'tests/success/semantic_cube_char_bool\\.k'\\]:\n    code = Path\\(name\\)\\.read_text\\(\\)\n    ast = ASTBuilder\\(\\)\\.transform\\(parser\\.parse\\(code\\)\\)\n    SemanticAnalyzer\\(\\)\\.analyze\\(ast\\)\n    print\\(f'PASS \\{name\\}'\\)\nPY$/": {
+            "approve": true,
+            "matchCommandLine": true
+        },
+        "/^source \\.venv/bin/activate && python - <<'PY'\nfrom pathlib import Path\nfrom lark import Lark\nfrom builder_ast import ASTBuilder\nfrom semantic_analyzer import SemanticAnalyzer\n\nparser = Lark\\.open\\('parser\\.lark', parser='lalr'\\)\nbase = Path\\('tests'\\)\nresults = \\[\\]\nfor group in \\('success', 'fails'\\):\n    for path in sorted\\(\\(base / group\\)\\.glob\\('\\*\\.k'\\)\\):\n        code = path\\.read_text\\(\\)\n        try:\n            ast = ASTBuilder\\(\\)\\.transform\\(parser\\.parse\\(code\\)\\)\n            SemanticAnalyzer\\(\\)\\.analyze\\(ast\\)\n            ok = True\n            err = ''\n        except Exception as exc:\n            ok = False\n            err = f'\\{exc\\.__class__\\.__name__\\}: \\{exc\\}'\n        expected = group == 'success'\n        status = 'PASS' if ok == expected else 'FAIL'\n        results\\.append\\(\\(status, group, path\\.name, err\\)\\)\n\nfor status, group, name, err in results:\n    print\\(f'\\{status\\} \\{group\\}/\\{name\\}'\\)\n    if status == 'FAIL':\n        print\\(err\\)\nPY$/": {
+            "approve": true,
+            "matchCommandLine": true
+        }
+    }
+}

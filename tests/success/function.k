@@ -1,4 +1,5 @@
 program main {
+    var i: int;
     function next_step() {
         begin;
             i++;

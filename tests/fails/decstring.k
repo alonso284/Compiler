@@ -3,6 +3,6 @@ program main{
 
     begin;
         i := "Hello";
-        i--;
+        i := i - 1;
     end;
 }

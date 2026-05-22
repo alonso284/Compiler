@@ -23,7 +23,6 @@ block: BEGIN SEMICOLON statements END SEMICOLON
 statements: statement*
 
 statement: (action SEMICOLON)
-         | (function_call SEMICOLON)
          | while_stmt
          | for_stmt
          | if_stmt

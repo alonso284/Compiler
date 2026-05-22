@@ -6,10 +6,10 @@ program main {
                 if((i * 5 + j)%2 == 1) then {
                     write("ODD");
                 } else {
-                    if((i * 5 + j)/2%2 == 1) then {
-                        write("2 MULTIPLE");
-                    } else {
+                    if((i * 5 + j)%4 == 0) then {
                         write("4 MULTIPLE");
+                    } else {
+                        write("2 MULTIPLE");
                     }
                 }
             }

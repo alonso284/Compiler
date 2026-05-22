@@ -6,8 +6,6 @@ program main{
         x := 5;
         i := "hello";
 
-        if (x == i) then {
-            write(x);
-        }
+        x := x + i;
     end;
 }
