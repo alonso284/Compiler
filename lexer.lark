@@ -19,7 +19,8 @@ WHILE: "while"
 DO: "do"
 FOR: "for"
 WRITE: "write"
-PROCEDURE: "procedure"
+WRITELN: "writeln"
+FUNCTION: "function"
 
 // identificadores
 

@@ -8,7 +8,7 @@ from nodes_ast import *
 class ASTBuilder(Transformer):
 
     _NOISE_TOKENS = {
-        "PROGRAM", "MAIN", "VAR", "PROCEDURE", "BEGIN", "END", "WHILE", "DO", "FOR", "IF", "THEN", "ELSE", "WRITE",
+        "PROGRAM", "MAIN", "VAR", "FUNCTION", "BEGIN", "END", "WHILE", "DO", "FOR", "IF", "THEN", "ELSE", "WRITE", "WRITELN",
         "LBRACE", "RBRACE", "LPAREN", "RPAREN", "LBRACKET", "RBRACKET", "COLON", "SEMICOLON", "COMMA",
     }
 
@@ -40,28 +40,28 @@ class ASTBuilder(Transformer):
 
     def code(self, items):
         declarations = []
-        procedures = []
+        functions = []
 
         for item in items:
             if not isinstance(item, list):
                 continue
             if item and isinstance(item[0], VarDeclNode):
                 declarations = item
-            elif item and isinstance(item[0], ProcedureNode):
-                procedures = item
+            elif item and isinstance(item[0], FunctionNode):
+                functions = item
 
         block = next(item for item in items if isinstance(item, BlockNode))
 
         return ProgramNode(
             variables=declarations,
-            procedures=procedures,
+            functions=functions,
             block=block,
         )
 
     def declarations(self, items):
         return [decl for group in items for decl in group]
 
-    def procedures(self, items):
+    def functions(self, items):
         return items
 
     # =====================================================
@@ -91,14 +91,14 @@ class ASTBuilder(Transformer):
         return IdentifierNode(name=identifier)
 
     # =====================================================
-    # PROCEDURES
+    # FUNCTIONS
     # =====================================================
 
-    def procedure(self, items):
+    def function(self, items):
         name = next(item.name for item in items if isinstance(item, IdentifierNode))
         block = next(item for item in items if isinstance(item, BlockNode))
 
-        return ProcedureNode(
+        return FunctionNode(
             name=name,
             block=block,
         )
@@ -134,6 +134,13 @@ class ASTBuilder(Transformer):
         )
 
     def write(self, items):
+        expression = next(item for item in items if isinstance(item, ExpressionNode))
+
+        return WriteNode(
+            expression=expression,
+        )
+
+    def writeln(self, items):
         expression = next(item for item in items if isinstance(item, ExpressionNode))
 
         return WriteNode(
@@ -190,13 +197,15 @@ class ASTBuilder(Transformer):
         )
 
     # =====================================================
-    # PROCEDURE CALLS
+    # FUNCTION CALLS
+    # =====================================================
+    # FUNCTION CALLS
     # =====================================================
 
-    def procedure_call(self, items):
+    def function_call(self, items):
         name = next(item.name for item in items if isinstance(item, IdentifierNode))
 
-        return ProcedureCallNode(
+        return FunctionCallNode(
             name=name,
         )
 
@@ -290,5 +299,5 @@ if __name__ == "__main__":
     ast = ASTBuilder().transform(tree)
 
     print(ast.variables)
-    print(ast.procedures)
+    print(ast.functions)
     print(ast.block)

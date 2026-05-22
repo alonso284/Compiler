@@ -1,10 +1,10 @@
 program main {
-    procedure next_step {
+    function next_step() {
         begin;
             i++;
         end;
     }
-    procedure action {
+    function action() {
         begin;
             write("HERE");
         end;

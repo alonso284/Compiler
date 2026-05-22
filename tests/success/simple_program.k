@@ -3,12 +3,12 @@ program main {
     var x, y: float;
     var ch: char;
     var flag: bool;
-    procedure assign_array_value {
+    function assign_array_value() {
         begin;
             arr := i * 2;
         end;
     }
-    procedure print_array_value {
+    function print_array_value() {
         begin;
             write(arr);
         end;

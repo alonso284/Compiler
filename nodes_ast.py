@@ -8,7 +8,7 @@ from typing import Optional
 @dataclass
 class ProgramNode:
     variables: list[VarDeclNode]
-    procedures: list[ProcedureNode]
+    functions: list[FunctionNode]
     block: BlockNode
 
 @dataclass
@@ -17,7 +17,7 @@ class VarDeclNode:
     var_type: str
 
 @dataclass
-class ProcedureNode:
+class FunctionNode:
     name: str
     block: BlockNode
 
@@ -69,7 +69,7 @@ class IfNode(StatementNode):
     else_body: Optional[BlockNode] = None
 
 @dataclass
-class ProcedureCallNode(StatementNode):
+class FunctionCallNode(StatementNode):
     name: str
 
 # =========================================================

@@ -1,8 +1,8 @@
-%import .lexer (PROGRAM, MAIN, INT, VAR, COLON, SEMICOLON, PROCEDURE, BEGIN, END, WRITE, WHILE, DO, FOR, IF, THEN, ELSE, AND, OR, EQ, NE, LE, GE, LT, GT, PLUS, MINUS, TIMES, DIVIDE, MOD, NOT, INC, DEC, LBRACE, RBRACE, LPAREN, RPAREN, LBRACKET, RBRACKET, COMMA, ASSIGN, ID, INTEGER, FLOAT, STRING, BOOL, CHAR, CTE)
+%import .lexer (PROGRAM, MAIN, INT, VAR, COLON, SEMICOLON, FUNCTION, BEGIN, END, WRITE, WRITELN, WHILE, DO, FOR, IF, THEN, ELSE, AND, OR, EQ, NE, LE, GE, LT, GT, PLUS, MINUS, TIMES, DIVIDE, MOD, NOT, INC, DEC, LBRACE, RBRACE, LPAREN, RPAREN, LBRACKET, RBRACKET, COMMA, ASSIGN, ID, INTEGER, FLOAT, STRING, BOOL, CHAR, CTE)
 
 start: code
 
-code: PROGRAM MAIN LBRACE declarations procedures block RBRACE
+code: PROGRAM MAIN LBRACE declarations functions block RBRACE
 
 declarations: declaration*
 
@@ -14,31 +14,33 @@ type: INT
     | BOOL
     | CHAR
 
-procedures: procedure*
+functions: function*
 
-procedure: PROCEDURE ID LBRACE block RBRACE
+function: FUNCTION ID LPAREN RPAREN LBRACE block RBRACE
 
 block: BEGIN SEMICOLON statements END SEMICOLON
 
 statements: statement*
 
 statement: (action SEMICOLON)
-         | (procedure_call SEMICOLON)
+         | (function_call SEMICOLON)
          | while_stmt
          | for_stmt
          | if_stmt
 
 action: write
+      | writeln
       | assignment
       | increment
       | decrement
-      | procedure_call
+      | function_call
 
-procedure_call: ID LPAREN RPAREN
+function_call: ID LPAREN RPAREN
 
 assignment: ID ASSIGN expression
 
 write: WRITE LPAREN expression RPAREN
+writeln: WRITELN LPAREN expression RPAREN
 
 increment: ID INC
 
