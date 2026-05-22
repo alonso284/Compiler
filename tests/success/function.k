@@ -8,6 +8,7 @@ program main {
     function action() {
         begin;
             write("HERE");
+            write(i);
         end;
     }
     begin;

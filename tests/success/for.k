@@ -1,8 +1,8 @@
 program main {
-    var i, a: int;
+    var i: int;
     begin;
         for(i := 0; i < 5; i++) {
-            write(a);
+            write(i);
         }
     end;
 }

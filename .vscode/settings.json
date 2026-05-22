@@ -43,6 +43,10 @@
         "/^source \\.venv/bin/activate && python - <<'PY'\nfrom pathlib import Path\nfrom lark import Lark\nfrom builder_ast import ASTBuilder\nfrom semantic_analyzer import SemanticAnalyzer\n\nparser = Lark\\.open\\('parser\\.lark', parser='lalr'\\)\nbase = Path\\('tests'\\)\nresults = \\[\\]\nfor group in \\('success', 'fails'\\):\n    for path in sorted\\(\\(base / group\\)\\.glob\\('\\*\\.k'\\)\\):\n        code = path\\.read_text\\(\\)\n        try:\n            ast = ASTBuilder\\(\\)\\.transform\\(parser\\.parse\\(code\\)\\)\n            SemanticAnalyzer\\(\\)\\.analyze\\(ast\\)\n            ok = True\n            err = ''\n        except Exception as exc:\n            ok = False\n            err = f'\\{exc\\.__class__\\.__name__\\}: \\{exc\\}'\n        expected = group == 'success'\n        status = 'PASS' if ok == expected else 'FAIL'\n        results\\.append\\(\\(status, group, path\\.name, err\\)\\)\n\nfor status, group, name, err in results:\n    print\\(f'\\{status\\} \\{group\\}/\\{name\\}'\\)\n    if status == 'FAIL':\n        print\\(err\\)\nPY$/": {
             "approve": true,
             "matchCommandLine": true
+        },
+        "/^source \\.venv/bin/activate && python intermediate_code\\.py$/": {
+            "approve": true,
+            "matchCommandLine": true
         }
     }
 }

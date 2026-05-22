@@ -1,9 +1,9 @@
 program main {
-    var i, array: int;
+    var i: int;
     begin;
         i := 0;
         while(i < 5) do {
-            write(array);
+            write(i);
             i++;
         }
     end;

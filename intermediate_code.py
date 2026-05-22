@@ -64,26 +64,30 @@ class IntermediateCodeGenerator:
             raise NotImplementedError(f"Code generation not implemented for node type: {type(node)}")
         
     def _generate_program(self, node: ProgramNode):
+        
         # Generate code for variable declarations
         for var_decl in node.variables:
             default_value = DEFAULT_VALUES.get(var_decl.var_type, "0")
-            self.code.append(f":= {var_decl.name} _ {default_value}")
+            self._emit(":=", default_value, "_", var_decl.name)
+
+        start_main_line = len(self.code)  # Get the line number where main starts
+        self._emit("GOTO", "_", "_", "_")  # Placeholder for the GOTO to main, patched later
 
         # Generate code for functions
         for function in node.functions:
             self._generate_function(function)
 
-        # Generate code for the main block
+        self.code[start_main_line] = ("GOTO", len(self.code), "_", "_")  # Patch the GOTO to main with the correct line number
+
         self._generate_block(node.block)
 
-        self.code.append("END _ _ _")  # Mark the end of the program
+        self._emit("END", "_", "_", "_")  # Mark the end of the program
 
     def _generate_function(self, function):
         print(f"Generating code for function: {function.name}")
         self.functions_lines[function.name] = len(self.code)  # Store the line number where the function starts
         self._generate_block(function.block)
-        self.code.append("POP _ _ jump")  # Clean up the stack after the function returns
-        self.code.append("GOTO jump _ _")  # Return to the caller
+        self._emit("POP", "_", "_", "_")  # Clean up the stack after the function returns
 
     def _generate_block(self, block):
         for statement in block.statements:
@@ -113,66 +117,77 @@ class IntermediateCodeGenerator:
     # STATEMENTS
     # =====================================================
 
+    def _emit(self, op, opn1="_", opn2="_", res="_"):
+        self.code.append((str(op), str(opn1), str(opn2), str(res)))
+
+    def _patch_operand1(self, line_index, value):
+        op, _, opn2, res = self.code[line_index]
+        self.code[line_index] = (op, str(value), opn2, res)
+
+    def _patch_operand2(self, line_index, value):
+        op, opn1, _, res = self.code[line_index]
+        self.code[line_index] = (op, opn1, str(value), res)
+
     def _function_call(self, name):
         line_caller = len(self.code)  # Get the current line number to return to after the function call
-        self.code.append(f"PUSH {line_caller} _ _")  # Push the return address onto the stack
-        self.code.append(f"GOTO {self.functions_lines[name]} _ _")  # Jump to the function's starting line
+        self._emit("PUSH", "_", "_", "_")  # Push the return address onto the stack
+        self._emit("GOTO", self.functions_lines[name], "_", "_")  # Jump to the function's starting line
 
     def _generate_assignment(self, node: AssignmentNode):
         variable = node.variable.name
         expression_code = self._generate_expression(node.expression)
-        self.code.append(f":= {variable} _ {expression_code}")
+        self._emit(":=", expression_code, "_", variable)
 
     def _generate_write(self, node: WriteNode):
         expression_code = self._generate_expression(node.expression)
-        self.code.append(f"WRITE {expression_code} _ _")
+        self._emit("WRITE", expression_code, "_", "_")
 
     def _generate_increment(self, node: IncrementNode):
         variable = node.variable.name
-        self.code.append(f"+ {variable} 1 {variable}")
+        self._emit("+", variable, "1", variable)
 
     def _generate_decrement(self, node: DecrementNode):
         variable = node.variable.name
-        self.code.append(f"- {variable} 1 {variable}")
+        self._emit("-", variable, "1", variable)
 
     def _generate_while(self, node: WhileNode):
         start_line = len(self.code)
         expression_code = self._generate_expression(node.condition)
         goto_line = len(self.code)
-        self.code.append(f"GOTOF {expression_code} ") # rest added later
+        self._emit("GOTOF", expression_code, "_", "_")  # operand2 patched later
         
         self._generate_block(node.body)
-        self.code.append(f"GOTO {start_line} _ _")
+        self._emit("GOTO", start_line, "_", "_")
         end_line = len(self.code)
-        self.code[goto_line] += f"{end_line} _" # complete the GOTOF
+        self._patch_operand2(goto_line, end_line)
 
     def _generate_for(self, node: ForNode):
         self._generate_statement(node.init)
         start_line = len(self.code)
         expression_code = self._generate_expression(node.condition)
         goto_line = len(self.code)
-        self.code.append(f"GOTOF {expression_code} ") # rest added later
+        self._emit("GOTOF", expression_code, "_", "_")  # operand2 patched later
         
         self._generate_block(node.body)
         self._generate_statement(node.update)
-        self.code.append(f"GOTO {start_line} _ _")
+        self._emit("GOTO", start_line, "_", "_")
         end_line = len(self.code)
-        self.code[goto_line] += f"{end_line} _" # complete the GOTOF
+        self._patch_operand2(goto_line, end_line)
 
     def _generate_if(self, node: IfNode):
         expression_code = self._generate_expression(node.condition)
         goto_line = len(self.code)
-        self.code.append(f"GOTOF {expression_code} ") # rest added later
+        self._emit("GOTOF", expression_code, "_", "_")  # operand2 patched later
         self._generate_block(node.then_body)
 
         if node.else_body:
             go_to_end_line = len(self.code)
-            self.code.append(f"GOTO ") # rest added later to skip the else block if the
-            self.code[goto_line] += f"{len(self.code)} _" # complete the GOTOF
+            self._emit("GOTO", "_", "_", "_")  # operand1 patched later to skip else block
+            self._patch_operand2(goto_line, len(self.code))
             self._generate_block(node.else_body)
-            self.code[go_to_end_line] += f"{len(self.code)} _" # complete the GOTO to skip the else block
+            self._patch_operand1(go_to_end_line, len(self.code))
         else:
-            self.code[goto_line] += f"{len(self.code)} _" # complete the GOTOF to skip the then block if the condition is false
+            self._patch_operand2(goto_line, len(self.code))
 
     # =====================================================
     # EXPRESSIONS
@@ -183,18 +198,18 @@ class IntermediateCodeGenerator:
             return expression.name
         elif isinstance(expression, LiteralNode):
             if isinstance(expression, StringNode) or isinstance(expression, CharNode):
-                return f'"{expression.value}"'  # Add quotes around string and char literals
+                return f'"{expression.value}"'  # Add quotes around string literals
             return str(expression.value)
         elif isinstance(expression, BinaryOpNode):
             left_code = self._generate_expression(expression.left)
             right_code = self._generate_expression(expression.right)
             temp_var = f"t{len(self.code)}"  # Temporary variable for the result
-            self.code.append(f"{expression.operator} {left_code} {right_code} {temp_var}")
+            self._emit(expression.operator, left_code, right_code, temp_var)
             return temp_var
         elif isinstance(expression, UnaryOpNode):
             operand_code = self._generate_expression(expression.operand)
             temp_var = f"t{len(self.code)}"  # Temporary variable for the result
-            self.code.append(f"{expression.operator} {operand_code} _ {temp_var}")
+            self._emit(expression.operator, operand_code, "_", temp_var)
             return temp_var
         else:
             raise NotImplementedError(f"Code generation not implemented for expression type: {type(expression)}")
