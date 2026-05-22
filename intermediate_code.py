@@ -52,14 +52,14 @@ DEFAULT_VALUES = {
 class IntermediateCodeGenerator:
     def __init__(self):
         self.code = []
-
-    functions_lines = {}  # Map function names to their starting line numbers in the code
+        self.functions_lines = {}
 
     def generate(self, node):
         self.code.clear()
         self.functions_lines.clear()
         if isinstance(node, ProgramNode):
             self._generate_program(node)
+            return self.code
         else:
             raise NotImplementedError(f"Code generation not implemented for node type: {type(node)}")
         
@@ -204,15 +204,24 @@ class IntermediateCodeGenerator:
             left_code = self._generate_expression(expression.left)
             right_code = self._generate_expression(expression.right)
             temp_var = f"t{len(self.code)}"  # Temporary variable for the result
-            self._emit(expression.operator, left_code, right_code, temp_var)
+            self._emit(self.normalize_operator(expression.operator), left_code, right_code, temp_var)
             return temp_var
         elif isinstance(expression, UnaryOpNode):
             operand_code = self._generate_expression(expression.operand)
             temp_var = f"t{len(self.code)}"  # Temporary variable for the result
-            self._emit(expression.operator, operand_code, "_", temp_var)
+            self._emit(self.normalize_operator(expression.operator), operand_code, "_", temp_var)
             return temp_var
         else:
             raise NotImplementedError(f"Code generation not implemented for expression type: {type(expression)}")
+        
+    def normalize_operator(self, operator):
+        if operator == "&&" or operator == "and":
+            return "AND"
+        elif operator == "||" or operator == "or":
+            return "OR"
+        elif operator == "!" or operator == "not":
+            return "NOT"
+        return operator
         
 if __name__ == "__main__":
     from builder_ast import ASTBuilder

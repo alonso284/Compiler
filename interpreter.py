@@ -23,6 +23,17 @@ class Interpreter:
         if op == ":=":
             value = self._get_value(opn1)
             self.variables[res] = value
+        elif op == "NOT":
+            value = self._get_value(opn1)
+            self.variables[res] = not value
+        elif op == "AND":
+            value1 = self._get_value(opn1)
+            value2 = self._get_value(opn2)
+            self.variables[res] = value1 and value2
+        elif op == "OR":
+            value1 = self._get_value(opn1)
+            value2 = self._get_value(opn2)
+            self.variables[res] = value1 or value2
         elif op == "+":
             value1 = self._get_value(opn1)
             value2 = self._get_value(opn2)
