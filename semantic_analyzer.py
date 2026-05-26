@@ -17,6 +17,7 @@ from nodes_ast import (
     IncrementNode,
     IntegerNode,
     FunctionCallNode,
+    PostfixOpNode,
     ProgramNode,
     StatementNode,
     StringNode,
@@ -279,6 +280,15 @@ class SemanticAnalyzer:
                 return operand_type
 
             raise SemanticError(f"Unsupported unary operator: '{expression.operator}'")
+
+        if isinstance(expression, PostfixOpNode):
+            var_type = self._get_identifier_type(expression.variable)
+            if var_type != "int":
+                raise SemanticError(
+                    f"Postfix '{expression.operator}' requires 'int' variable, got '{var_type}' "
+                    f"for '{expression.variable.name}'"
+                )
+            return "int"
 
         if isinstance(expression, BinaryOpNode):
             left_type = self._infer_expression_type(expression.left)

@@ -94,6 +94,11 @@ class UnaryOpNode(ExpressionNode):
     operand: ExpressionNode
 
 @dataclass
+class PostfixOpNode(ExpressionNode):
+    variable: IdentifierNode
+    operator: str
+
+@dataclass
 class IdentifierNode(ExpressionNode):
     name: str
 

@@ -24,6 +24,10 @@ class Interpreter:
     def _execute(self, op, opn1, opn2, res):
         if op == ":=":
             value = self._get_value(opn1)
+            if opn2 == "int":
+                value = int(value)
+            elif opn2 == "float":
+                value = float(value)
             self.variables[res] = value
         elif op == "NOT":
             value = self._get_value(opn1)

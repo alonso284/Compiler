@@ -61,7 +61,7 @@ addition_expression: product_expression ((PLUS | MINUS) product_expression)*
 
 product_expression: value_expression ((TIMES | DIVIDE | MOD) value_expression)*
 
-value_expression: (PLUS | MINUS | NOT)? (ID  | CTE | (LPAREN expression RPAREN))
+value_expression: (PLUS | MINUS | NOT |)? ((ID (INC | DEC)?)  | CTE | (LPAREN expression RPAREN))
 
 %import common.WS
 %ignore WS

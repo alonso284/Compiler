@@ -13,6 +13,7 @@ class ASTBuilder(Transformer):
     }
 
     _UNARY_OP_TOKENS = {"PLUS", "MINUS", "NOT"}
+    _POSTFIX_OP_TOKENS = {"INC", "DEC"}
 
     @staticmethod
     def _is_token(value, token_type=None):
@@ -199,8 +200,6 @@ class ASTBuilder(Transformer):
     # =====================================================
     # FUNCTION CALLS
     # =====================================================
-    # FUNCTION CALLS
-    # =====================================================
 
     def function_call(self, items):
         name = next(item.name for item in items if isinstance(item, IdentifierNode))
@@ -238,6 +237,12 @@ class ASTBuilder(Transformer):
             return UnaryOpNode(
                 operator=str(filtered[0]),
                 operand=filtered[1],
+            )
+
+        if self._is_token(filtered[1]) and filtered[1].type in self._POSTFIX_OP_TOKENS:
+            return PostfixOpNode(
+                variable=filtered[0],
+                operator=str(filtered[1]),
             )
 
         return filtered[0]

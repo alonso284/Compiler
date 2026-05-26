@@ -37,7 +37,7 @@ IF STATEMENTS:
 """
 
 
-from nodes_ast import DecrementNode, ForNode, AssignmentNode, FunctionCallNode, IfNode, ProgramNode, UnaryOpNode, WhileNode, WriteNode, IncrementNode, IdentifierNode, LiteralNode, BinaryOpNode, StringNode, CharNode
+from nodes_ast import DecrementNode, ForNode, AssignmentNode, FunctionCallNode, IfNode, PostfixOpNode, ProgramNode, UnaryOpNode, WhileNode, WriteNode, IncrementNode, IdentifierNode, LiteralNode, BinaryOpNode, StringNode, CharNode
 
 # DEFAULT TYPES
 DEFAULT_VALUES = {
@@ -53,10 +53,12 @@ class IntermediateCodeGenerator:
     def __init__(self):
         self.code = []
         self.functions_lines = {}
+        self.variable_types = {}
 
     def generate(self, node):
         self.code.clear()
         self.functions_lines.clear()
+        self.variable_types.clear()
         if isinstance(node, ProgramNode):
             self._generate_program(node)
             return self.code
@@ -69,6 +71,7 @@ class IntermediateCodeGenerator:
         for var_decl in node.variables:
             default_value = DEFAULT_VALUES.get(var_decl.var_type, "0")
             self._emit(":=", default_value, "_", var_decl.name)
+            self.variable_types[var_decl.name] = var_decl.var_type
 
         start_main_line = len(self.code)  # Get the line number where main starts
         self._emit("GOTO", "_", "_", "_")  # Placeholder for the GOTO to main, patched later
@@ -136,7 +139,8 @@ class IntermediateCodeGenerator:
     def _generate_assignment(self, node: AssignmentNode):
         variable = node.variable.name
         expression_code = self._generate_expression(node.expression)
-        self._emit(":=", expression_code, "_", variable)
+        var_type = self.variable_types.get(variable, "_")
+        self._emit(":=", expression_code, var_type, variable)
 
     def _generate_write(self, node: WriteNode):
         expression_code = self._generate_expression(node.expression)
@@ -210,6 +214,15 @@ class IntermediateCodeGenerator:
             operand_code = self._generate_expression(expression.operand)
             temp_var = f"t{len(self.code)}"  # Temporary variable for the result
             self._emit(self.normalize_operator(expression.operator), operand_code, "_", temp_var)
+            return temp_var
+        elif isinstance(expression, PostfixOpNode):
+            variable = expression.variable.name
+            temp_var = f"t{len(self.code)}"
+            self._emit(":=", variable, "_", temp_var)
+            if expression.operator == "++":
+                self._emit("+", variable, "1", variable)
+            elif expression.operator == "--":
+                self._emit("-", variable, "1", variable)
             return temp_var
         else:
             raise NotImplementedError(f"Code generation not implemented for expression type: {type(expression)}")
