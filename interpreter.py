@@ -4,10 +4,11 @@ For operands, if FIRST letter is digit, or surrounded by double quotes, it's a l
 
 class Interpreter:
 
-    def __init__(self):
+    def __init__(self, verbose=False):
         self.index = 0
         self.stack = []
         self.variables = {}
+        self.verbose = verbose
 
     def run(self, code):
         self.index = 0
@@ -15,7 +16,8 @@ class Interpreter:
         self.variables = {}
         while self.index < len(code):
             op, opn1, opn2, res = code[self.index]
-            # print(f"Executing line {self.index}: {op} {opn1} {opn2} {res}")
+            if self.verbose:
+                print(f"[{self.index}] {op} {opn1} {opn2} {res}")
             self._execute(op, opn1, opn2, res)
             self.index = self.index + 1
 
@@ -88,7 +90,7 @@ class Interpreter:
             if not condition:
                 self.index = int(opn2) - 1  # -1 because we will increment index after this method
         elif op == "END":
-            print("Program finished.")
+            pass
         else:
             raise NotImplementedError(f"Operation not implemented: {op}")
 
