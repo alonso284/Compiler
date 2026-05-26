@@ -14,18 +14,30 @@ class Compiler:
         self.interpreter = Interpreter(verbose=verbose)
 
     def compile_and_run(self, code):
-        # Parse the code and build the AST
-        tree = self.parser.parse(code)
-        ast = self.ast_builder.transform(tree)
+        try:
+            tree = self.parser.parse(code)
+            ast = self.ast_builder.transform(tree)
+        except Exception as e:
+            print(f"Error during parsing:\n  {e}")
+            return
 
-        # Perform semantic analysis
-        self.semantic_analyzer.analyze(ast)
+        try:
+            self.semantic_analyzer.analyze(ast)
+        except Exception as e:
+            print(f"Error during semantic analysis:\n  {e}")
+            return
 
-        # Generate intermediate code
-        intermediate_code = self.code_generator.generate(ast)
+        try:
+            intermediate_code = self.code_generator.generate(ast)
+        except Exception as e:
+            print(f"Error during code generation:\n  {e}")
+            return
 
-        # Run the intermediate code
-        self.interpreter.run(intermediate_code)
+        try:
+            self.interpreter.run(intermediate_code)
+        except Exception as e:
+            print(f"Error during execution:\n  {e}")
+            return
 
 if __name__ == "__main__":
     arg_parser = argparse.ArgumentParser(description="Compile and run a .k program")
