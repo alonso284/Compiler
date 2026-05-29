@@ -207,17 +207,17 @@ class IntermediateCodeGenerator:
         elif isinstance(expression, BinaryOpNode):
             left_code = self._generate_expression(expression.left)
             right_code = self._generate_expression(expression.right)
-            temp_var = f"t{len(self.code)}"  # Temporary variable for the result
+            temp_var = f"^t{len(self.code)}"  # Temporary variable for the result
             self._emit(self.normalize_operator(expression.operator), left_code, right_code, temp_var)
             return temp_var
         elif isinstance(expression, UnaryOpNode):
             operand_code = self._generate_expression(expression.operand)
-            temp_var = f"t{len(self.code)}"  # Temporary variable for the result
-            self._emit(self.normalize_operator(expression.operator), operand_code, "_", temp_var)
+            temp_var = f"^t{len(self.code)}"  # Temporary variable for the result
+            self._emit(self.normalize_operator(expression.operator), 0, operand_code, temp_var)
             return temp_var
         elif isinstance(expression, PostfixOpNode):
             variable = expression.variable.name
-            temp_var = f"t{len(self.code)}"
+            temp_var = f"^t{len(self.code)}"
             self._emit(":=", variable, "_", temp_var)
             if expression.operator == "++":
                 self._emit("+", variable, "1", variable)
@@ -242,7 +242,7 @@ if __name__ == "__main__":
     from lark import Lark
 
     parser = Lark.open("parser.lark", parser="lalr")
-    test_file = "tests/success/simple_program.k"
+    test_file = "tests/success/funciones.txt"
     with open(test_file, "r") as file:
         code = file.read()
     

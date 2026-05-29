@@ -1,0 +1,25 @@
+program main{
+	var total, control, flag : int;
+
+	function control() {
+	begin;
+		write("Funcion control activa");
+	end;
+	}
+
+	begin;
+		write("--- TEST DE VALIDACION SEMANTICA 2 ---");
+		total := 50;
+
+
+		control := total + 10;
+
+
+		100 := total * 2;
+
+
+
+
+		write(total);
+	end;
+}
